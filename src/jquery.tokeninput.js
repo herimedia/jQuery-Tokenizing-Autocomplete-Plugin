@@ -108,6 +108,7 @@ $.TokenList = function (input, settings) {
                 case KEY.RIGHT:
                 case KEY.UP:
                 case KEY.DOWN:
+                	console.log('keydown');
                     if(!$(this).val()) {
                         previous_token = input_token.prev();
                         next_token = input_token.next();
@@ -164,14 +165,15 @@ $.TokenList = function (input, settings) {
                 case KEY.TAB:
                 case KEY.RETURN:
                 case KEY.COMMA:
-                  if(selected_dropdown_item) {
-                    add_existing_token($(selected_dropdown_item));
-                    return false;
-                  } else {
-                	  add_new_token($(this).val());
-                	  return false;
-                  }
-                  break;
+                	
+					if(selected_dropdown_item) {
+						add_existing_token($(selected_dropdown_item));
+						return false;
+					} else {
+						add_new_token($(this).val());
+						return false;
+					}
+					break;
 
                 case KEY.ESC:
                   hide_dropdown();
@@ -342,6 +344,9 @@ $.TokenList = function (input, settings) {
       .addClass(settings.classes.token)
       .insertBefore(input_token);
 
+      //TH - added to prevent search getting triggered unnecessarily.
+      clearTimeout(timeout);
+      
       // The 'delete token' button
       $("<span>x</span>")
           .addClass(settings.classes.tokenDelete)
@@ -384,6 +389,10 @@ $.TokenList = function (input, settings) {
     
     //Added TH - This is for adding a token that doesn't exist in the list. Could do with drying this up because it's very similar to add_existing_token.
     function add_new_token (label) {
+    	
+    	if($.trim(label) == '') {
+    		return false;
+    	}
     	
         var this_token = insert_token(label, label);
 
@@ -592,7 +601,13 @@ $.TokenList = function (input, settings) {
 
     // Do the actual search
     function run_search(query) {
-        var cached_results = cache.get(query);
+        
+    	if(query=='') {
+    		hide_dropdown();
+    		return false;
+    	}
+    	
+    	var cached_results = cache.get(query);
         if(cached_results) {
             populate_dropdown(query, cached_results);
         } else {
@@ -603,7 +618,13 @@ $.TokenList = function (input, settings) {
 			  }
               cache.add(query, settings.jsonContainer ? results[settings.jsonContainer] : results);
               populate_dropdown(query, settings.jsonContainer ? results[settings.jsonContainer] : results);
-            };
+            
+              //TH - added to make sure we don't show results if there was no query. This can happen due to a race condition inserting tockens.
+              if($.trim(input_box.val()) == '') {
+            	  hide_dropdown();
+              }
+              
+			};
             
             if(settings.method == "POST") {
 			    $.post(settings.url + queryStringDelimiter + settings.queryParam + "=" + query, {}, callback, settings.contentType);
