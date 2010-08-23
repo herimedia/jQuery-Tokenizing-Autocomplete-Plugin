@@ -5,7 +5,10 @@
  * Copyright (c) 2009 James Smith (http://loopj.com)
  * Licensed jointly under the GPL and MIT licenses,
  * choose which one suits your project best!
- *
+ *	
+ * TH - 2010-08-23 - Added ability to have arbitary tags that don't require a match from the list. 
+ * Added requiresMatch options to suppor this. Defaults to original Tokenizing Autocomplete functionality.
+ * Also added focusHint so it doesn't always show hint when focusing the input. Again, defaults to orignal functionality.
  */
 
 (function($) {
@@ -23,7 +26,9 @@ $.fn.tokenInput = function (url, options) {
         method: "GET",
         contentType: "json",
         queryParam: "q",
-        onResult: null
+        onResult: null,
+        focusHint: true,		//Added TH - determines if drop-down hint should be shown on input focus.
+        requireMatch: true		//Added TH - determines if a user should be able to add new tags or must match a selection.
     }, options);
 
     settings.classes = $.extend({
@@ -87,7 +92,7 @@ $.TokenList = function (input, settings) {
             outline: "none"
         })
         .focus(function () {
-            if (settings.tokenLimit == null || settings.tokenLimit != token_count) {
+            if (settings.focusHint && (settings.tokenLimit == null || settings.tokenLimit != token_count)) {
                 show_dropdown_hint();
             }
         })
@@ -160,8 +165,11 @@ $.TokenList = function (input, settings) {
                 case KEY.RETURN:
                 case KEY.COMMA:
                   if(selected_dropdown_item) {
-                    add_token($(selected_dropdown_item));
+                    add_existing_token($(selected_dropdown_item));
                     return false;
+                  } else {
+                	  add_new_token($(this).val());
+                	  return false;
                   }
                   break;
 
@@ -242,7 +250,7 @@ $.TokenList = function (input, settings) {
         .appendTo(token_list)
         .append(input_box);
 
-    init_list();
+    init_list(hidden_input);
 
     //
     // Functions
@@ -250,8 +258,27 @@ $.TokenList = function (input, settings) {
 
 
     // Pre-populate list if items exist
-    function init_list () {
-        li_data = settings.prePopulate;
+    function init_list (token_element) {
+        
+    	li_data = settings.prePopulate;
+
+        //TH - If prepopulate was passed in as true and not an array of tags, just build the array from existing field value.
+    	//This could do with being improved because it just uses the value as both the name and the id.
+        if(li_data && !li_data.length) {
+
+        	//convert tag string into tag array that the tokenizer can consume
+            var rawTags = $(token_element).val().split(',');
+            //[{"id":"856","name":"House"},]
+            var tags = [];
+            for(var i=0, len = rawTags.length; i < len; i++) {
+        		var tag = rawTags[i];
+        		if (tag.length) tags[i] = {id: tag, name: tag};
+            }
+            //clear the text
+            $(token_element).attr('value', '');
+            li_data = tags;
+        }
+        
         if(li_data && li_data.length) {
             for(var i in li_data) {
                 var this_token = $("<li><p>"+li_data[i].name+"</p> </li>")
@@ -330,8 +357,9 @@ $.TokenList = function (input, settings) {
     }
 
     // Add a token to the token list based on user input
-    function add_token (item) {
-        var li_data = $.data(item.get(0), "tokeninput");
+    function add_existing_token (item) {
+        
+    	var li_data = $.data(item.get(0), "tokeninput");
         var this_token = insert_token(li_data.id, li_data.name);
 
         // Clear input box and make sure it keeps focus
@@ -352,6 +380,32 @@ $.TokenList = function (input, settings) {
             input_box.hide();
             hide_dropdown();
         }
+    }
+    
+    //Added TH - This is for adding a token that doesn't exist in the list. Could do with drying this up because it's very similar to add_existing_token.
+    function add_new_token (label) {
+    	
+        var this_token = insert_token(label, label);
+
+        // Clear input box and make sure it keeps focus
+        input_box
+            .val("")
+            .focus();
+
+        // Don't show the help dropdown, they've got the idea
+        hide_dropdown();
+
+        // Save this token id
+        var id_string = label + ","
+        hidden_input.val(hidden_input.val() + id_string);
+        
+        token_count++;
+        
+        if(settings.tokenLimit != null && settings.tokenLimit >= token_count) {
+            input_box.hide();
+            hide_dropdown();
+        }
+        
     }
 
     // Select a token in the token list
@@ -461,7 +515,7 @@ $.TokenList = function (input, settings) {
                     select_dropdown_item(get_element_from_event(event, "li"));
                 })
                 .mousedown(function (event) {
-                    add_token(get_element_from_event(event, "li"));
+                    add_existing_token(get_element_from_event(event, "li"));
                     return false;
                 })
                 .hide();
