@@ -9,7 +9,6 @@
  * TH - 2010-08-23 - Added ability to have arbitary tags that don't require a match from the list. 
  * Added requiresMatch options to suppor this. Defaults to original Tokenizing Autocomplete functionality.
  * Also added focusHint so it doesn't always show hint when focusing the input. Again, defaults to orignal functionality.
- * TH - 2010-08-23 - Added suggested tag functionality to load in a tag cloud of recommended tags for selection.
  */
 
 (function($) {
@@ -280,7 +279,7 @@ $.TokenList = function (input, settings) {
 				
 				//Should the whole ul be removed?
 				if($('li',this).length==0) {
-					$(this).parents('div.'+settings.classes.suggestedTags).remove();
+					$(suggested_tags_container).remove();
 				}
 				return false;
 				
@@ -374,6 +373,10 @@ $.TokenList = function (input, settings) {
     			}
     		
 	        }
+    		
+    		if($('li',suggested_tags).length==0) {
+				$(suggested_tags_container).remove();
+			}
     	 }
     	
     }
