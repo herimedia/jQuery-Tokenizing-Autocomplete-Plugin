@@ -9,6 +9,7 @@
  * TH - 2010-08-23 - Added ability to have arbitary tags that don't require a match from the list. 
  * Added requiresMatch options to suppor this. Defaults to original Tokenizing Autocomplete functionality.
  * Also added focusHint so it doesn't always show hint when focusing the input. Again, defaults to orignal functionality.
+ * TH - 2010-08-23 - Added suggested tag functionality to load in a tag cloud of recommended tags for selection.
  */
 
 (function($) {
@@ -28,7 +29,10 @@ $.fn.tokenInput = function (url, options) {
         queryParam: "q",
         onResult: null,
         focusHint: true,		//Added TH - determines if drop-down hint should be shown on input focus.
-        requireMatch: true		//Added TH - determines if a user should be able to add new tags or must match a selection.
+        requireMatch: true,		//Added TH - determines if a user should be able to add new tags or must match a selection.
+        suggestedTagsText: "Suggested tags:",
+        defaultSuggestTagSize: 14,
+        defaultSuggestTagSizeUnit: 'px'
     }, options);
 
     settings.classes = $.extend({
@@ -41,7 +45,9 @@ $.fn.tokenInput = function (url, options) {
         dropdownItem: "token-input-dropdown-item",
         dropdownItem2: "token-input-dropdown-item2",
         selectedDropdownItem: "token-input-selected-dropdown-item",
-        inputToken: "token-input-input-token"
+        inputToken: "token-input-input-token",
+        suggestedTags: "token-input-suggested-tags",
+        suggestedTag: "token-input-suggested-tag"
     }, options.classes);
 
     return this.each(function () {
@@ -253,7 +259,37 @@ $.TokenList = function (input, settings) {
         .append(input_box);
 
     init_list(hidden_input);
-
+    
+    suggestedTags = settings.suggestedTags;
+	if(suggestedTags && suggestedTags.length) {
+		
+	    var suggested_tags_container = $('<div />')
+			.addClass(settings.classes.suggestedTags)
+			.insertAfter(dropdown);
+	
+		var suggested_tags_label = $('<p />')
+			.appendTo(suggested_tags_container)	
+			.text(settings.suggestedTagsText);
+		
+		var suggested_tags = $("<ul />")
+			.appendTo(suggested_tags_container)
+			.click(function(event) {
+				var li = get_element_from_event(event, "li");
+				add_new_token($('a', li).text());
+				li.remove();
+				
+				//Should the whole ul be removed?
+				if($('li',this).length==0) {
+					$(this).parents('div.'+settings.classes.suggestedTags).remove();
+				}
+				return false;
+				
+			});
+		
+	    init_suggestedTags();
+	
+	}
+	
     //
     // Functions
     //
@@ -310,6 +346,36 @@ $.TokenList = function (input, settings) {
                 hidden_input.val(hidden_input.val() + id_string);
             }
         }
+    }
+    
+    /**
+     * TH - Adds suggested tags cloud
+     */
+    function init_suggestedTags() {
+    	
+    	li_data = settings.suggestedTags;
+    	if(li_data && li_data.length) {
+	    	
+    		for(var i in li_data) {
+	    		
+    			suggestedTag = li_data[i].name;
+    			if($('li p', token_list).filter(":contains('" + suggestedTag + "')").length==0) {
+    			
+		    		/*size adjust will increase/decrease tag size*/
+		    		var sizeAdjust = 0;
+		    		if(typeof(li_data[i].size) != 'undefined') {
+		    			sizeAdjust = li_data[i].size;
+		    		}
+		    		
+		    		var this_token = $('<li><a href="#" style="font-size: ' + (settings.defaultSuggestTagSize+sizeAdjust) + settings.defaultSuggestTagSizeUnit + '">'+suggestedTag+'</a></li>')
+	                .addClass(settings.classes.suggestedTag)
+	                .appendTo(suggested_tags);
+		    		
+    			}
+    		
+	        }
+    	 }
+    	
     }
 
     function is_printable_character(keycode) {

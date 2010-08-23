@@ -108,3 +108,27 @@ div.token-input-dropdown ul li.token-input-selected-dropdown-item {
     background-color: #d0efa0;
 }
 
+/* Suggested Tags */
+div.token-input-suggested-tags ul {
+	list-style: none;
+	width: 160px;
+	float: left;
+	display:block;
+
+}
+
+div.token-input-suggested-tags ul li {
+	margin: 0 1em 0 0;
+	display: inline;	
+	float: left;
+	line-height:2em;
+}
+
+div.token-input-suggested-tags ul li a {
+	margin: 0;
+	display:block;
+}
+
+div.token-input-suggested-tags p {
+	margin: 10px 0 2px 0;
+}
