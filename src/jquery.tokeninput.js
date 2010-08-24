@@ -31,7 +31,8 @@ $.fn.tokenInput = function (url, options) {
         requireMatch: true,		//Added TH - determines if a user should be able to add new tags or must match a selection.
         suggestedTagsText: "Suggested tags:",
         defaultSuggestTagSize: 14,
-        defaultSuggestTagSizeUnit: 'px'
+        defaultSuggestTagSizeUnit: 'px',
+        afterAdd: function() {}
     }, options);
 
     settings.classes = $.extend({
@@ -93,7 +94,9 @@ $.TokenList = function (input, settings) {
 
     // Create a new text input an attach keyup events
     var input_box = $("<input type=\"text\">")
-        .css({
+        .attr('id', $(input).attr('id')+'Dynamic')
+        .attr('name', $(input).attr('id')+'Dynamic')
+    	.css({
             outline: "none"
         })
         .focus(function () {
@@ -427,6 +430,8 @@ $.TokenList = function (input, settings) {
 
       $.data(this_token.get(0), "tokeninput", {"id": id, "name": value});
 
+      settings.afterAdd.call(this);
+      
       return this_token;
     }
 
