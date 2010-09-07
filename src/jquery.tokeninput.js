@@ -29,6 +29,7 @@ $.fn.tokenInput = function (url, options) {
         onResult: null,
         focusHint: true,		//Added TH - determines if drop-down hint should be shown on input focus.
         requireMatch: true,		//Added TH - determines if a user should be able to add new tags or must match a selection.
+        animateDropdown: true,
         suggestedTagsText: "Suggested tags:",
         defaultSuggestTagSize: 14,
         defaultSuggestTagSizeUnit: 'px',
@@ -623,7 +624,10 @@ $.TokenList = function (input, settings) {
             }
 
             dropdown.show();
-            dropdown_ul.slideDown("fast");
+            if (settings.animateDropdown)
+              dropdown_ul.slideDown("fast");
+            else
+              dropdown_ul.show();
 
         } else {
             dropdown
