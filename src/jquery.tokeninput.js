@@ -93,7 +93,7 @@ $.TokenList = function (input, settings) {
     var timeout;
 
     // Create a new text input an attach keyup events
-    var input_box = $("<input type=\"text\">")
+    var input_box = $("<input autocomplete=\"off\" type=\"text\">")
         .attr('id', $(input).attr('id')+'Dynamic')
         .attr('name', $(input).attr('id')+'Dynamic')
     	.css({
