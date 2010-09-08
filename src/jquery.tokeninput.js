@@ -673,8 +673,10 @@ $.TokenList = function (input, settings) {
             if(selected_token) {
                 deselect_token($(selected_token), POSITION.AFTER);
             }
+            
             if (query.length >= settings.minChars) {
-                show_dropdown_searching();
+                if (settings.searchingText)
+                  show_dropdown_searching();
                 if (immediate) {
                     run_search(query);
                 } else {
