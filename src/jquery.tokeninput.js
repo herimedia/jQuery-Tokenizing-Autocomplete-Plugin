@@ -582,6 +582,7 @@ $.TokenList = function (input, settings) {
     }
 
     function show_dropdown_searching () {
+        hide_dropdown();
         dropdown
             .html("<p>"+settings.searchingText+"</p>")
             .show();
@@ -639,9 +640,9 @@ $.TokenList = function (input, settings) {
               dropdown_ul.show();
 
         } else {
-            dropdown
-                .html("<p>"+settings.noResultsText+"</p>")
-                .show();
+            hide_dropdown();
+            if (settings.noResultsText)
+              dropdown.html("<p>"+settings.noResultsText+"</p>").show();
         }
     }
 
