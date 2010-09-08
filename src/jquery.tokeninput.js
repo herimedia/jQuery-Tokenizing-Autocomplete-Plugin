@@ -216,6 +216,13 @@ $.TokenList = function (input, settings) {
                                input_box.blur();
                            });
 
+    // Keep a reference to the parent form
+    // Collect the stray arbitrary tags before the parent form submits
+    var parentForm = hidden_input.parents('form')
+                        .submit(function(){
+                          add_new_token(input_box.val());
+                        });
+    
     // Keep a reference to the selected token and dropdown item
     var selected_token = null;
     var selected_dropdown_item = null;
