@@ -183,7 +183,13 @@ $.TokenList = function (input, settings) {
                 case KEY.TAB:
                 case KEY.RETURN:
                 case KEY.COMMA:
-                	
+          
+          // Submit form if user hits return a second time
+          if(event.keyCode == KEY.RETURN && $(this).val() == "") {
+            parentForm[0].submit();
+            return false;
+          }
+          
 					if(selected_dropdown_item) {
 						add_existing_token($(selected_dropdown_item));
 						return false;
