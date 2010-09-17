@@ -43,6 +43,7 @@ $.fn.tokenInput = function (url, options) {
         tokenDelete: "token-input-delete-token",
         selectedToken: "token-input-selected-token",
         highlightedToken: "token-input-highlighted-token",
+        dropdownWrapper: "token-input-dropdown-wrapper",
         dropdown: "token-input-dropdown",
         dropdownItem: "token-input-dropdown-item",
         dropdownItem2: "token-input-dropdown-item2",
@@ -276,6 +277,8 @@ $.TokenList = function (input, settings) {
         .addClass(settings.classes.dropdown)
         .insertAfter(token_list)
         .hide();
+        
+    dropdown.wrap("<div class='"+ settings.classes.dropdownWrapper +"' />");    
 
     // The token holding the input box
     var input_token = $("<li />")
