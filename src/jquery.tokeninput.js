@@ -346,8 +346,8 @@ $.TokenList = function (input, settings) {
         }
         
         if(li_data && li_data.length) {
-            for(var i in li_data) {
-                var this_token = $("<li><p>"+li_data[i].name+"</p> </li>")
+            li_data.each(function(item) {
+                var this_token = $("<li><p>"+item.name+"</p> </li>")
                     .addClass(settings.classes.token)
                     .insertBefore(input_token);
 
@@ -359,7 +359,7 @@ $.TokenList = function (input, settings) {
                         return false;
                     });
 
-                $.data(this_token.get(0), "tokeninput", {"id": li_data[i].id, "name": li_data[i].name});
+                $.data(this_token.get(0), "tokeninput", {"id": item.id, "name": item.name});
 
                 // Clear input box and make sure it keeps focus
                 input_box
@@ -370,9 +370,9 @@ $.TokenList = function (input, settings) {
                 hide_dropdown();
 
                 // Save this token id
-                var id_string = li_data[i].id + ","
+                var id_string = item.id + ","
                 hidden_input.val(hidden_input.val() + id_string);
-            }
+            });
         }
     }
     
